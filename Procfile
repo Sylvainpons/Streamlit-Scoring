@@ -1,2 +1,3 @@
-web: streamlit run apiDashbord.py
+web: streamlit run apiDashboard.py
+
 
