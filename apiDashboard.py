@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 st.title('Dashboard de notation du modèle')
 
 # Envoyer une requête GET à l'API Flask pour obtenir la liste des IDs
-response = requests.get('http://localhost:5000/ids')
+response = requests.get('https://my-api-model-5666b391a10c.herokuapp.com/ids')
 if response.status_code == 200:
     data = response.json()
     ids = data.get('ids')
@@ -17,7 +17,7 @@ if response.status_code == 200:
         # Vérifier si un ID client est sélectionné
         if selected_id:
             # Envoyer une requête POST à l'API Flask pour obtenir les probabilités prédites
-            url = 'http://localhost:5000/predict'
+            url = 'https://my-api-model-5666b391a10c.herokuapp.com/predict'
             payload = {'id_client': selected_id}
             response = requests.post(url, json=payload)
             if response.status_code == 200:
@@ -32,7 +32,7 @@ if response.status_code == 200:
                     st.write("Le crédit est refusé", probabilities[0][1])
 
             # Envoyer une autre requête POST à l'API Flask pour obtenir les données du client sélectionné
-            url_data = 'http://localhost:5000/data'
+            url_data = 'https://my-api-model-5666b391a10c.herokuapp.com/data'
             payload_data = {'id_client': selected_id}
             response_data = requests.post(url_data, json=payload_data)
             if response_data.status_code == 200:
@@ -52,7 +52,7 @@ if response.status_code == 200:
                 st.plotly_chart(fig_top_4)
 
                 # Envoyer une requête POST à l'API Flask pour obtenir les données de distribution totale
-                url_distribution = 'http://localhost:5000/all_data'
+                url_distribution = 'https://my-api-model-5666b391a10c.herokuapp.com/all_data'
                 response_distribution = requests.post(url_distribution)
                 if response_distribution.status_code == 200:
                     data_distribution = response_distribution.json()
