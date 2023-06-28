@@ -23,13 +23,13 @@ if response.status_code == 200:
             if response.status_code == 200:
                 data = response.json()
                 probabilities = data.get('probabilities')
-                st.write(probabilities)
+                
 
                 # Vérifier si la probabilité est supérieure à 0.5
                 if probabilities[0][0] > 0.5:  # Accéder à la valeur de probabilité
-                    st.write("Le crédit est accepté", probabilities[0][0])
+                    st.write("Le crédit est accepté", round(probabilities[0][0],2))
                 else:
-                    st.write("Le crédit est refusé", probabilities[0][1])
+                    st.write("Le crédit est refusé", round(probabilities[0][1],2))
 
             # Envoyer une autre requête POST à l'API Flask pour obtenir les données du client sélectionné
             url_data = 'http://creepzy.pythonanywhere.com/data'
@@ -45,9 +45,9 @@ if response.status_code == 200:
                 # Créer un graphique en barres pour les 4 meilleures fonctionnalités SHAP
                 fig_top_4 = go.Figure(data=go.Bar(x=top_4_features, y=top_4_values))
                 fig_top_4.update_layout(
-                    title='Top 4 des fonctionnalités SHAP',
+                    title='Top 4 des principales caractéristiques influentes',
                     xaxis_title='Fonctionnalités',
-                    yaxis_title='Valeurs SHAP'
+                    yaxis_title='Valeurs'
                 )
                 st.plotly_chart(fig_top_4)
                 
@@ -67,10 +67,10 @@ if response.status_code == 200:
         # Créer un graphique en barres pour les valeurs du client sélectionné et de X_train
         fig_top_4 = go.Figure()
         fig_top_4.add_trace(go.Bar(x=top_4_features, y=top_4_values, name='Client sélectionné'))
-        fig_top_4.add_trace(go.Bar(x=top_4_features, y=x_train_values, name='X_train',marker=dict(color='red')))
+        fig_top_4.add_trace(go.Bar(x=top_4_features, y=x_train_values, name='Valeur Global',marker=dict(color='red')))
         fig_top_4.update_layout(
-            title='Comparaison des valeurs du client sélectionné et de X_train',
-            xaxis_title='Fonctionnalités',
+            title='Comparaison des valeurs du client',
+            xaxis_title='Caractéristiques',
             yaxis_title='Valeurs'
         )
         st.plotly_chart(fig_top_4)
