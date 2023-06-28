@@ -50,45 +50,27 @@ if response.status_code == 200:
                     yaxis_title='Valeurs SHAP'
                 )
                 st.plotly_chart(fig_top_4)
+                
+ # Récupérer les valeurs correspondantes dans X_train pour les fonctionnalités du top_4_features
+    x_train_response = requests.get('http://creepzy.pythonanywhere.com/x_train')
 
-                # Envoyer une requête POST à l'API Flask pour obtenir les données de distribution totale
-                url_distribution = 'http://creepzy.pythonanywhere.com/all_data'
-                response_distribution = requests.post(url_distribution)
-                if response_distribution.status_code == 200:
-                    data_distribution = response_distribution.json()
+    if x_train_response.status_code == 200:
+        dataX = x_train_response.json()
+        X_train = dataX.get('x_train')
 
-                    # Récupérer les noms et valeurs des fonctionnalités de distribution totale
-                    distribution_features = data_distribution.get('Fonctionnalités')
-                    distribution_values = data_distribution.get('Distribution totale')
+        # Créer une liste des valeurs correspondantes dans X_train pour les fonctionnalités du top_4_features
+        x_train_values = [X_train[0][feature] for feature in top_4_features]
 
-                   # Récupérer les valeurs SHAP du client sélectionné
-                    selected_shap_values = data_client.values()
+        # Ajouter la valeur du client sélectionné à la liste des valeurs de X_train
+        x_train_values.append(top_4_values)
 
-                    # Convertir selected_shap_values en liste
-                    selected_shap_values = list(selected_shap_values)
-
-                    # Créer la figure avec la distribution totale et la valeur SHAP du client sélectionné
-                    fig_distribution = go.Figure()
-
-                    # Vérifier si les valeurs de distribution sont disponibles
-                    if distribution_values is not None:
-                        # Ajouter les points de la distribution totale des valeurs SHAP par rapport aux 4 meilleures fonctionnalités
-                        for feature, value in zip(top_4_features, distribution_values):
-                            fig_distribution.add_trace(go.Box(y=value, name=feature, boxpoints='all', jitter=0.5, pointpos=-2))
-
-                    # Ajouter les points du client sélectionné en bleu
-                    fig_distribution.add_trace(go.Scatter(x=top_4_features, y=top_4_values, mode='markers', name='Client sélectionné', marker=dict(color='blue')))
-
-                    # Ajouter les valeurs globales des 4 fonctionnalités en rouge
-                    fig_distribution.add_trace(go.Scatter(x=top_4_features, y=selected_shap_values, mode='markers', name='Valeurs globales', marker=dict(color='red')))
-
-                    fig_distribution.update_layout(
-                        title='Positionnement du client par rapport à la distribution totale',
-                        xaxis_title='Fonctionnalités',
-                        yaxis_title='Valeurs SHAP',
-                        legend=dict(orientation='h')  # Placer la légende horizontalement
-                    )
-
-                    st.plotly_chart(fig_distribution)
-
-
+        # Créer un graphique en barres pour les valeurs du client sélectionné et de X_train
+        fig_top_4 = go.Figure()
+        fig_top_4.add_trace(go.Bar(x=top_4_features, y=top_4_values, name='Client sélectionné'))
+        fig_top_4.add_trace(go.Bar(x=top_4_features, y=x_train_values, name='X_train',marker=dict(color='red')))
+        fig_top_4.update_layout(
+            title='Comparaison des valeurs du client sélectionné et de X_train',
+            xaxis_title='Fonctionnalités',
+            yaxis_title='Valeurs'
+        )
+        st.plotly_chart(fig_top_4)
