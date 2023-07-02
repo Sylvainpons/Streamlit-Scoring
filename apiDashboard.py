@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import plotly.graph_objects as go
+import numpy as np
 
 st.title('Dashboard de notation du modèle')
 
@@ -27,9 +28,9 @@ if response.status_code == 200:
 
                 # Vérifier si la probabilité est supérieure à 0.5
                 if probabilities[0][0] > 0.5:  # Accéder à la valeur de probabilité
-                    st.write("Le crédit est accepté", round(probabilities[0][0],2))
+                    st.write("Le crédit est accepté, la probabilité d'un remboursement est de ", round(probabilities[0][0],2),"%")
                 else:
-                    st.write("Le crédit est refusé", round(probabilities[0][1],2))
+                    st.write("Le crédit est refusé, la probalité qu'il ne rembourse pas est de ", round(probabilities[0][1],2),"%")
 
             # Envoyer une autre requête POST à l'API Flask pour obtenir les données du client sélectionné
             url_data = 'http://creepzy.pythonanywhere.com/data'
@@ -59,7 +60,8 @@ if response.status_code == 200:
         X_train = dataX.get('x_train')
 
         # Créer une liste des valeurs correspondantes dans X_train pour les fonctionnalités du top_4_features
-        x_train_values = [X_train[0][feature] for feature in top_4_features]
+        x_train_values = [np.mean([x_train[feature] for x_train in X_train]) for feature in top_4_features]
+
 
         # Ajouter la valeur du client sélectionné à la liste des valeurs de X_train
         x_train_values.append(top_4_values)
@@ -67,7 +69,7 @@ if response.status_code == 200:
         # Créer un graphique en barres pour les valeurs du client sélectionné et de X_train
         fig_top_4 = go.Figure()
         fig_top_4.add_trace(go.Bar(x=top_4_features, y=top_4_values, name='Client sélectionné'))
-        fig_top_4.add_trace(go.Bar(x=top_4_features, y=x_train_values, name='Valeur Global',marker=dict(color='red')))
+        fig_top_4.add_trace(go.Bar(x=top_4_features, y=x_train_values, name='Valeur moyenne des clients',marker=dict(color='red')))
         fig_top_4.update_layout(
             title='Comparaison des valeurs du client',
             xaxis_title='Caractéristiques',
